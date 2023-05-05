@@ -1,3 +1,5 @@
 bundles/
+*.txt
 *.xml
 *.yaml
+*.yml
