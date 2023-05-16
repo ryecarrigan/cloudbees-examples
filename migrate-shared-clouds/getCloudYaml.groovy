@@ -34,8 +34,11 @@ cloudYaml.each { cloud ->
 
 def yamlCNode = new Mapping(jenkins: new Mapping(clouds: cloudYaml))
 def yamlNode  = ConfigurationAsCode.get().toYaml(yamlCNode)
-def strBuffer = new StringWriter()
-ConfigurationAsCode.serializeYamlNode(yamlNode, strBuffer)
+if (yamlNode) {
+    def strBuffer = new StringWriter()
+    ConfigurationAsCode.serializeYamlNode(yamlNode, strBuffer)
 
-println strBuffer
+    println strBuffer
+}
+
 return

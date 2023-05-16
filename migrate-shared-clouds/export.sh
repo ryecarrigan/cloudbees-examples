@@ -99,7 +99,7 @@ items:
     echo "    - Overwriting existing file"
   fi
   curl -sSX POST \
-    --data-urlencode "name=${item_name}" \
+    --data-urlencode "name=${cloud}" \
     --data-urlencode "script=$(<getCloudYaml.groovy)" \
     -o "${jcasc_file}" \
     -u "${JENKINS_USER_ID}:${JENKINS_API_TOKEN}" \
@@ -107,6 +107,16 @@ items:
 
   # Read the cloud name from the YAML file
   cloud_name=$(cat $jcasc_file | head -n 1 | cut -c3-)
+  if [[ -z "${cloud_name}" ]]; then
+    echo "  - Unable to identify cloud name from script output"
+    if [[ -z $(<${jcasc_file}) ]]; then
+      echo "  - Removing empty file ${jcasc_file}"
+      rm ${jcasc_file}
+    fi
+
+    continue
+  fi
+
   echo "  - Identified Kubernetes cloud name as '${cloud_name}'"
   echo "  - Creating item YAML for project folder '${project_name}' restricted to this cloud (${items_file})"
   if [[ -f "$items_file" ]]; then
