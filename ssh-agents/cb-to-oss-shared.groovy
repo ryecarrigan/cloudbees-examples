@@ -7,7 +7,6 @@
  */
 
 import com.cloudbees.jenkins.plugins.sshslaves.SSHLauncher as CBLauncher
-import com.cloudbees.opscenter.server.model.SharedSlave
 import hudson.plugins.sshslaves.SSHLauncher as OSSLauncher
 import jenkins.model.Jenkins
 
@@ -43,21 +42,20 @@ hudson.plugins.sshslaves.verifiers.SshHostKeyVerificationStrategy convertStrateg
 }
 
 // Iterate over all static agents.
-for (node in Jenkins.get().getAllItems(SharedSlave)) {
+for (node in Jenkins.get().getAllItems(com.cloudbees.opscenter.server.model.SharedSlave)) {
   def launcher = node.getLauncher()
   if (launcher instanceof CBLauncher) {
     // If launcher is CloudBees, prepare to convert to OSS.
     if (node.getOfflineCause() == null) {
       println "Agent '${node.name}' is using CloudBees SSH launcher but cannot be modified while it is online."
-      return
     } else {
       println "Agent '${node.name}' is using CloudBees SSH launcher and is offline. Converting to OSS SSH launcher."
       if (!dryRun) {
         // Create new launcher from the CloudBees launcher attributes.
         def details = launcher.connectionDetails
         def updated = new OSSLauncher(launcher.host, details.port, details.credentialsId,
-                details.jvmOptions, details.javaPath, details.prefixStartSlaveCmd, details.suffixStartSlaveCmd,
-                launchTimeoutSeconds, maxNumRetries, retryWaitTime, convertStrategy(details.keyVerificationStrategy)
+            details.jvmOptions, details.javaPath, details.prefixStartSlaveCmd, details.suffixStartSlaveCmd,
+            launchTimeoutSeconds, maxNumRetries, retryWaitTime, convertStrategy(details.keyVerificationStrategy)
         )
 
         // Set the advanced fields in the OSS launcher.

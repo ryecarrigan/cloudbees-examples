@@ -20,7 +20,7 @@ boolean dryRun = true
 def displayEnvironment = false
 
 
-/* Helper method to convert the key strategy from the OSS plugin to CloudBees implementation. */
+/* Helper method to convert the key strategy from the OSS plugin to the CloudBees implementation. */
 com.cloudbees.jenkins.plugins.sshslaves.verification.ServerKeyVerificationStrategy convertStrategy(hudson.plugins.sshslaves.verifiers.SshHostKeyVerificationStrategy strategy) {
   switch (strategy) {
     case hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy:
@@ -37,7 +37,7 @@ com.cloudbees.jenkins.plugins.sshslaves.verification.ServerKeyVerificationStrate
   }
 }
 
-// Iterate over all static agents.
+// Iterate over all shared agents.
 for (node in Jenkins.get().getAllItems(com.cloudbees.opscenter.server.model.SharedSlave)) {
   def launcher = node.getLauncher()
   if (launcher instanceof OSSLauncher) {
@@ -49,7 +49,7 @@ for (node in Jenkins.get().getAllItems(com.cloudbees.opscenter.server.model.Shar
       if (!dryRun) {
         // Create new launcher from the OSS launcher attributes.
         def details = new SSHConnectionDetails(launcher.credentialsId, launcher.port, launcher.javaPath, launcher.jvmOptions,
-                launcher.prefixStartSlaveCmd, launcher.suffixStartSlaveCmd, displayEnvironment, convertStrategy(launcher.sshHostKeyVerificationStrategy))
+            launcher.prefixStartSlaveCmd, launcher.suffixStartSlaveCmd, displayEnvironment, convertStrategy(launcher.sshHostKeyVerificationStrategy))
         def updated = new CBLauncher(launcher.host, details)
 
         // Update the agent with the new launcher.

@@ -49,7 +49,7 @@ for (hudson.model.Slave node in Jenkins.get().nodes.findAll { it instanceof huds
     if (node.toComputer().isOnline()) {
       println "Agent '${node.nodeName}' is using CloudBees SSH launcher but cannot be modified while it is online."
     } else {
-      println "Converting agent '${node.nodeName}' from CloudBees SSH launcher to OSS SSH launcher."
+      println "Agent '${node.nodeName}' is using CloudBees SSH launcher and is offline. Converting to OSS SSH launcher."
       if (!dryRun) {
         // Create new launcher from the CloudBees launcher attributes.
         def details = launcher.connectionDetails

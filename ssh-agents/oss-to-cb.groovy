@@ -41,11 +41,11 @@ com.cloudbees.jenkins.plugins.sshslaves.verification.ServerKeyVerificationStrate
 for (hudson.model.Slave node in Jenkins.get().nodes.findAll { it instanceof hudson.slaves.DumbSlave }) {
   def launcher = node.getLauncher()
   if (launcher instanceof OSSLauncher) {
-    // If launcher is CloudBees, prepare to convert to OSS.
+    // If launcher is OSS, prepare to convert to CloudBees.
     if (node.toComputer().isOnline()) {
-      println "Agent '${node.name}' is using OSS SSH launcher but cannot be modified while it is online."
+      println "Agent '${node.nodeName}' is using OSS SSH launcher but cannot be modified while it is online."
     } else {
-      println "Agent '${node.name}' is using OSS SSH launcher and is offline. Converting to OSS SSH launcher."
+      println "Agent '${node.nodeName}' is using OSS SSH launcher and is offline. Converting to OSS SSH launcher."
       if (!dryRun) {
         // Create new launcher from the OSS launcher attributes.
         def details = new SSHConnectionDetails(launcher.credentialsId, launcher.port, launcher.javaPath, launcher.jvmOptions,
