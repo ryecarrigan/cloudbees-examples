@@ -1,6 +1,7 @@
 import com.cloudbees.jenkins.plugins.sshslaves.SSHConnectionDetails
-import com.cloudbees.jenkins.plugins.sshslaves.SSHLauncher
+import com.cloudbees.jenkins.plugins.sshslaves.SSHLauncher as CBLauncher
 import hudson.model.JDK
+import hudson.plugins.sshslaves.SSHLauncher as OSSLauncher
 import hudson.slaves.DumbSlave
 import hudson.tools.ToolLocationNodeProperty
 import jenkins.model.Jenkins
@@ -28,17 +29,30 @@ def toolProperty = new ToolLocationNodeProperty([toolLocation])
 
 // Iterate over all of the nodes connected to Jenkins starting with the configured prefix
 def nodes = Jenkins.get().nodes.findAll { it instanceof DumbSlave && it.nodeName.startsWith(prefix) } as List<DumbSlave>
+println "Found ${nodes.size()} nodes beginning with prefix '${prefix}'"
+
 for (node in nodes) {
-  // Update JavaPath on SSH Launcher
-  if (node.launcher instanceof SSHLauncher) {
-    def launcher = node.launcher as SSHLauncher
+  // Update JavaPath on CloudBees SSH Launcher
+  if (node.launcher instanceof CBLauncher) {
+    def launcher = node.launcher as CBLauncher
     if (launcher.connectionDetails?.javaPath == javaPath) {
       println "No action needed on node '${node.name}' launcher's JavaPath because it is already configured as expected"
     } else {
       println "Node '${node.name}' launcher's JavaPath doesn't match and will be updated"
       def sshDetails = launcher.connectionDetails
       def newDetails = new SSHConnectionDetails(sshDetails.credentialsId, sshDetails.port, javaPath, sshDetails.jvmOptions, sshDetails.prefixStartSlaveCmd, sshDetails.suffixStartSlaveCmd, sshDetails.displayEnvironment, sshDetails.keyVerificationStrategy)
-      node.launcher = new SSHLauncher(launcher.host, newDetails)
+      node.launcher = new CBLauncher(launcher.host, newDetails)
+    }
+  }
+
+  // Update JavaPath on OSS SSH Launcher
+  if (node.launcher instanceof OSSLauncher) {
+    def launcher = node.launcher as OSSLauncher
+    if (launcher.javaPath == javaPath) {
+      println "No action needed on node '${node.name}' launcher's JavaPath because it is already configured as expected"
+    } else {
+      println "Node '${node.name}' launcher's JavaPath doesn't match and will be updated"
+      node.launcher = new OSSLauncher(launcher.host, launcher.port, launcher.credentialsId, launcher.jvmOptions, javaPath, launcher.prefixStartSlaveCmd, launcher.suffixStartSlaveCmd, launcher.launchTimeoutSeconds, launcher.maxNumRetries, launcher.retryWaitTime, launcher.sshHostKeyVerificationStrategy)
     }
   }
 
